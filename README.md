@@ -1,4 +1,4 @@
-# terraform-helm-argo-bootstrp
+# terraform-helm-argo-bootstrap
 
 Terraform wrapper module to bootstrap generic ArgoCD application stacks using helm.
 
@@ -8,7 +8,7 @@ Terraform, `jq` and a recent version of the [Github CLI](https://cli.github.com/
 
 ## Usage
 
-This module acts as a thin wrapping layer around a help chart that will do the actual deployment.
+This module acts as a thin wrapper around a helm chart that will do the actual deployment. See https://github.com/joerx/cloudlab/tree/main/charts/bootstrap-argo for an example chart that can be used with this module.
 
 ### Code Formatting
 
