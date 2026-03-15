@@ -1,8 +1,18 @@
 terraform {
+  required_version = "~> 1.0"
+
   required_providers {
-    linode = {
-      source  = "linode/linode"
+    helm = {
+      source  = "hashicorp/helm"
       version = "~> 3.0"
+    }
+    github = {
+      source  = "integrations/github"
+      version = "~> 6.0"
+    }
+    tls = {
+      source  = "hashicorp/tls"
+      version = "~> 4.0"
     }
   }
 }

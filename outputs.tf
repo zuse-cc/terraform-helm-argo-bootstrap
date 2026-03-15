@@ -1,7 +1,7 @@
-output "bucket" {
-  value = linode_object_storage_bucket.b.label
+output "release_name" {
+  value = helm_release.bootstrap.name
 }
 
-output "endpoint" {
-  value = linode_object_storage_bucket.b.s3_endpoint
+output "release_status" {
+  value = helm_release.bootstrap.status
 }

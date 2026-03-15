@@ -1,21 +1,33 @@
 locals {
-  label = "${var.stage}-${var.service}-${random_string.s.result}"
-  tags  = ["stage:${var.stage}", "service:${var.service}", "component:backups"]
+  release_name = var.release_name != null ? var.release_name : var.chart_name
+
+  # principle of least surprise - user provided values take precedence
+  sensitive_values = merge(
+    {
+      "source.targetRevision" = var.source_repo.target_revision,
+      "source.repoURL"        = var.source_repo.repo_url,
+      "source.username"       = var.registry.username,
+      "source.password"       = var.registry.password
+      "helm.repoURL"          = var.chart_repo,
+    },
+    var.sensitive_values
+  )
 }
 
-resource "random_string" "s" {
-  length  = 4
-  special = false
-  upper   = false
-}
+resource "helm_release" "bootstrap" {
+  name       = local.release_name
+  repository = var.chart_repo
+  chart      = var.chart_name
+  version    = var.chart_version
+  namespace  = var.namespace
 
-resource "linode_object_storage_bucket" "b" {
-  region = var.region
-  label  = local.label
+  values = [yamlencode(var.values)]
 
-  access_key = var.versioning.enabled ? var.versioning.access_key_id : null
-  secret_key = var.versioning.enabled ? var.versioning.secret_access_key : null
-
-  versioning = var.versioning.enabled
-  acl        = "private"
+  set_sensitive = concat([
+    for k, v in merge(local.sensitive_values) :
+    {
+      name  = k
+      value = v
+    }
+  ])
 }

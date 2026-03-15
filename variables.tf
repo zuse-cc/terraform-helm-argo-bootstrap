@@ -1,26 +1,55 @@
-variable "region" {
-  description = "Linode region to create the bucket in"
+variable "release_name" {
+  description = "Helm release name"
+  type        = string
+  default     = null
+}
+
+variable "chart_version" {
+  description = "Version of the bootstrap-argo chart to deploy"
   type        = string
 }
 
-variable "stage" {
-  description = "Deployment stage"
+variable "chart_repo" {
+  description = "Helm repository hosting the chart"
   type        = string
 }
 
-variable "service" {
-  description = "Service name"
+variable "chart_name" {
+  description = "Chart name within the repository"
   type        = string
 }
 
-variable "versioning" {
-  description = "Enable versioning for the bucket"
+variable "source_repo" {
   type = object({
-    enabled           = bool
-    access_key_id     = optional(string)
-    secret_access_key = optional(string)
+    repo_name       = string
+    repo_url        = string,
+    target_revision = optional(string, "HEAD")
   })
-  default = {
-    enabled = false
-  }
+}
+
+variable "registry" {
+  description = "Registry credentials to pull charts and images from private repos"
+  type = object({
+    username = string
+    password = string
+  })
+}
+
+variable "namespace" {
+  description = "Namespace to deploy into (must match the ArgoCD namespace)"
+  type        = string
+  default     = "argocd"
+}
+
+variable "values" {
+  description = "Non-sensitive Helm values passed to the chart"
+  type        = any
+  default     = {}
+}
+
+variable "sensitive_values" {
+  description = "Sensitive Helm values passed via set_sensitive (dot-notation keys)"
+  type        = map(string)
+  default     = {}
+  sensitive   = true
 }

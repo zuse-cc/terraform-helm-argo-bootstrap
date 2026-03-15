@@ -1,6 +1,6 @@
-# terraform-linode-bucket
+# terraform-helm-argo-bootstrp
 
-Terraform module to build great things in the cloud.
+Terraform wrapper module to bootstrap generic ArgoCD application stacks using helm.
 
 ## Prerequisites
 
@@ -8,7 +8,7 @@ Terraform, `jq` and a recent version of the [Github CLI](https://cli.github.com/
 
 ## Usage
 
-Usage instructions go here...
+This module acts as a thin wrapping layer around a help chart that will do the actual deployment.
 
 ### Code Formatting
 
