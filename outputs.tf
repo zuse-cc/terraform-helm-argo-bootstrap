@@ -1,7 +1,13 @@
-output "release_name" {
-  value = helm_release.bootstrap.name
+output "apps_release" {
+  value = {
+    name   = helm_release.apps.name
+    status = helm_release.apps.status
+  }
 }
 
-output "release_status" {
-  value = helm_release.bootstrap.status
+output "secrets_release" {
+  value = {
+    name   = helm_release.secrets.name
+    status = helm_release.secrets.status
+  }
 }
