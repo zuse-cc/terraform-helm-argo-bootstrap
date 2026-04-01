@@ -1,6 +1,4 @@
 locals {
-  release_name = var.release_name != null ? var.release_name : var.chart_name
-
   # principle of least surprise - user provided values take precedence
   sensitive_values = {
     "source.username" = var.registry.username,
@@ -10,7 +8,7 @@ locals {
   custom_values = {
     "source.targetRevision" = var.source_repo.target_revision,
     "source.repoURL"        = var.source_repo.repo_url,
-    "helm.repoURL"          = var.chart_repo,
+    "helm.repoURL"          = var.apps.chart_repo,
     "infisical.endpoint"    = var.infisical.endpoint,
     "infisical.environment" = var.infisical.environment,
     "infisical.projectSlug" = var.infisical.project_slug,
@@ -26,10 +24,10 @@ locals {
 # Do NOT pass anything sensitive into this chart, values will be passed 
 # directly into ArgoCD via helm, so they may be exposed in the GUI!
 resource "helm_release" "apps" {
-  name       = "cloudlab-apps"
-  chart      = "cloudlab-apps"
-  version    = "0.1.0-625df5bf"
-  repository = var.chart_repo
+  name       = coalesce(var.apps.release_name, var.apps.chart_name)
+  chart      = var.apps.chart_name
+  version    = var.apps.chart_version
+  repository = var.apps.chart_repo
   namespace  = var.namespace
   values     = [yamlencode(var.values)]
 
@@ -47,10 +45,10 @@ resource "helm_release" "apps" {
 # All secrets MUST be stored in infisical and retrieved via ESO
 # This chart only provides the initial secret for ESO to access Infisical
 resource "helm_release" "secrets" {
-  name       = "cloudlab-secrets"
-  chart      = "cloudlab-secrets"
-  version    = "0.1.0-625df5bf"
-  repository = var.chart_repo
+  name       = coalesce(var.secrets.release_name, var.secrets.chart_name)
+  chart      = var.secrets.chart_name
+  version    = coalesce(var.secrets.chart_version, var.apps.chart_version)
+  repository = coalesce(var.secrets.chart_repo, var.apps.chart_repo)
   namespace  = var.namespace
 
   set_sensitive = [for k, v in local.infisical_auth_values : {

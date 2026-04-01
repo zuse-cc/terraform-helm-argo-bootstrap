@@ -4,19 +4,24 @@ variable "release_name" {
   default     = null
 }
 
-variable "chart_version" {
-  description = "Version of the bootstrap-argo chart to deploy"
-  type        = string
+variable "apps" {
+  description = "Settings for the applications helm chart."
+  type = object({
+    release_name  = optional(string, null)
+    chart_version = string
+    chart_repo    = string
+    chart_name    = string
+  })
 }
 
-variable "chart_repo" {
-  description = "Helm repository hosting the chart"
-  type        = string
-}
-
-variable "chart_name" {
-  description = "Chart name within the repository"
-  type        = string
+variable "secrets" {
+  description = "Settings for the secrets helm chart. Uses chart_version and chart_repo from apps if not set here"
+  type = object({
+    release_name  = optional(string, null)
+    chart_version = optional(string, null)
+    chart_repo    = optional(string, null)
+    chart_name    = string
+  })
 }
 
 variable "source_repo" {
