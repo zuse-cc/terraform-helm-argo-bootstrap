@@ -42,7 +42,7 @@ variable "namespace" {
 }
 
 variable "values" {
-  description = "Non-sensitive Helm values passed to the chart"
+  description = "Non-sensitive Helm values passed to the chart. Do NOT use for secrets!"
   type        = any
   default     = {}
 }
@@ -52,4 +52,19 @@ variable "sensitive_values" {
   type        = map(string)
   default     = {}
   sensitive   = true
+}
+
+variable "infisical" {
+  description = "We use Infisical to pass secrets to the cluster, use this to configure it"
+  type = object({
+    auth = object({
+      client_id     = string
+      client_secret = string
+    })
+    # project_id = optional(string) # Required when authelia.enabled = true
+    project_slug = string
+    environment  = string
+    path         = string
+    endpoint     = optional(string, "https://eu.infisical.com")
+  })
 }
