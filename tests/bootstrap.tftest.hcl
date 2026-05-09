@@ -3,24 +3,10 @@ mock_provider "github" {}
 mock_provider "tls" {}
 
 variables {
+  stack_name = "my-stack"
+
   apps = {
-    chart_name    = "bootstrap-argo"
-    chart_version = "1.0.0"
-    chart_repo    = "https://charts.example.com"
-  }
-
-  secrets = {
-    chart_name = "bootstrap-secrets"
-  }
-
-  infisical = {
-    auth = {
-      client_id     = ""
-      client_secret = ""
-    }
-    project_slug = ""
-    environment  = ""
-    path         = ""
+    chart_repo = "oci://ghcr.io/example/helm"
   }
 
   source_repo = {
@@ -45,10 +31,8 @@ run "release_name_defaults_to_chart_name" {
 run "release_name_uses_provided_value" {
   variables {
     apps = {
-      release_name  = "custom-release"
-      chart_name    = "bootstrap-argo"
-      chart_version = "1.0.0"
-      chart_repo    = "https://charts.example.com"
+      release_name = "custom-release"
+      chart_repo   = "oci://ghcr.io/example/helm"
     }
   }
 
@@ -90,5 +74,31 @@ run "namespace_uses_provided_value" {
   assert {
     condition     = helm_release.apps.namespace == "custom-ns"
     error_message = "namespace should use the provided value"
+  }
+}
+
+run "secrets_uses_kubernetes_backend_by_default" {
+  assert {
+    condition     = helm_release.secrets.namespace == "${var.stack_name}-secrets"
+    error_message = "secrets should deploy to stack-secrets namespace when infisical is not set"
+  }
+}
+
+run "secrets_uses_infisical_backend_when_configured" {
+  variables {
+    infisical = {
+      auth = {
+        client_id     = "test-id"
+        client_secret = "test-secret"
+      }
+      project_slug = "my-project"
+      environment  = "dev"
+      path         = "/secrets"
+    }
+  }
+
+  assert {
+    condition     = helm_release.secrets.namespace == "external-secrets"
+    error_message = "secrets should deploy to external-secrets namespace when infisical is configured"
   }
 }

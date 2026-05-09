@@ -1,3 +1,8 @@
+variable "stack_name" {
+  description = "Stack name — used as ArgoCD project name, Application prefix, ClusterSecretStore name, and local-secrets namespace prefix"
+  type        = string
+}
+
 variable "release_name" {
   description = "Helm release name"
   type        = string
@@ -5,23 +10,24 @@ variable "release_name" {
 }
 
 variable "apps" {
-  description = "Settings for the applications helm chart."
+  description = "Settings for the applications helm chart. Only chart_repo is required — name and version default to the charts bundled with this module."
   type = object({
     release_name  = optional(string, null)
-    chart_version = string
+    chart_name    = optional(string, "argo-appstack")
+    chart_version = optional(string, "0.1.0")
     chart_repo    = string
-    chart_name    = string
   })
 }
 
 variable "secrets" {
-  description = "Settings for the secrets helm chart. Uses chart_version and chart_repo from apps if not set here"
+  description = "Settings for the secrets helm chart. Defaults to the chart bundled with this module at the same version as apps."
   type = object({
     release_name  = optional(string, null)
+    chart_name    = optional(string, "argo-appstack-secrets")
     chart_version = optional(string, null)
     chart_repo    = optional(string, null)
-    chart_name    = string
   })
+  default = {}
 }
 
 variable "source_repo" {
@@ -60,16 +66,16 @@ variable "sensitive_values" {
 }
 
 variable "infisical" {
-  description = "We use Infisical to pass secrets to the cluster, use this to configure it"
+  description = "Infisical configuration for the secrets backend. When set, the Infisical ClusterSecretStore is used; omit to use the local Kubernetes secrets backend."
   type = object({
     auth = object({
       client_id     = string
       client_secret = string
     })
-    # project_id = optional(string) # Required when authelia.enabled = true
     project_slug = string
     environment  = string
     path         = string
     endpoint     = optional(string, "https://eu.infisical.com")
   })
+  default = null
 }

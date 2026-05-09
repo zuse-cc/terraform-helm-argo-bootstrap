@@ -1,4 +1,4 @@
-name: test
+name: Run Terraform Tests
 
 on:
   pull_request:
