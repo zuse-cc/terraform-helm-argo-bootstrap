@@ -9,7 +9,7 @@ default: test
 
 out/$(PACKAGE_FILE):
 	mkdir -p out
-	tar -czf out/$(PACKAGE_FILE) --exclude out --exclude Makefile --exclude .terraform --exclude '.git*' --exclude tests .
+	tar -czf out/$(PACKAGE_FILE) --exclude out --exclude Makefile --exclude .terraform --exclude '.git*' --exclude tests --exclude charts .
 
 .PHONY: package
 package: out/$(PACKAGE_FILE)
