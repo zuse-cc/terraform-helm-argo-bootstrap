@@ -34,6 +34,7 @@ spec:
               projectSlug: '{{ .Values.secrets.backend.infisical.projectSlug }}'
               environment: '{{ .Values.secrets.backend.infisical.environment }}'
               secretsPath: '{{ .Values.secrets.backend.infisical.secretsPath }}'
+              credentialsSecret: '{{ .Values.secrets.backend.infisical.credentialsSecret | default (printf "%s-credentials" .Values.stack.name) }}'
   destination:
     namespace: argocd
     server: 'https://kubernetes.default.svc'

@@ -15,7 +15,7 @@ variable "apps" {
     release_name  = optional(string, null)
     chart_name    = optional(string, "argo-appstack")
     chart_version = optional(string, "0.1.0")
-    chart_repo    = string
+    chart_repo    = optional(string, "oci://ghcr.io/zuse-cc/helm")
   })
 }
 
