@@ -59,10 +59,16 @@ resource "helm_release" "secrets" {
   repository = coalesce(var.secrets.chart_repo, var.apps.chart_repo)
   namespace  = local.secrets_namespace
 
-  set = var.infisical != null ? [{
-    name  = "backend"
-    value = "infisical"
-  }] : []
+  set = var.infisical != null ? [
+    {
+      name  = "backend"
+      value = "infisical"
+    },
+    {
+      name  = "secret.name"
+      value = "${var.stack_name}-credentials"
+    }
+  ] : []
 
   set_sensitive = [for k, v in local.infisical_auth_values : {
     name  = k
