@@ -74,8 +74,10 @@ variable "infisical" {
     })
     project_slug = string
     environment  = string
-    path         = string
+    parent_path  = string
+    cluster_name = string
     endpoint     = optional(string, "https://eu.infisical.com")
+    secrets      = optional(map(string), {})
   })
   default = null
 }
