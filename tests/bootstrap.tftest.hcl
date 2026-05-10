@@ -1,6 +1,7 @@
 mock_provider "helm" {}
 mock_provider "github" {}
 mock_provider "tls" {}
+mock_provider "infisical" {}
 
 variables {
   stack_name = "my-stack"
@@ -21,10 +22,10 @@ variables {
   }
 }
 
-run "release_name_defaults_to_chart_name" {
+run "release_name_defaults_to_stack_name" {
   assert {
-    condition     = helm_release.apps.name == var.apps.chart_name
-    error_message = "release name should default to chart_name when release_name is not set"
+    condition     = helm_release.apps.name == "${var.stack_name}-apps"
+    error_message = "release name should default to <stack_name>-apps when release_name is not set"
   }
 }
 
@@ -93,7 +94,8 @@ run "secrets_uses_infisical_backend_when_configured" {
       }
       project_slug = "my-project"
       environment  = "dev"
-      path         = "/secrets"
+      parent_path  = "/stacks"
+      cluster_name = "test-cluster"
     }
   }
 
