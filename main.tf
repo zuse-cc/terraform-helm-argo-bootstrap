@@ -74,10 +74,16 @@ resource "helm_release" "apps" {
   namespace  = var.namespace
   values     = [yamlencode(var.values)]
 
-  set = [for k, v in local.custom_values : {
-    name  = k
-    value = v
-  }]
+  set = concat(
+    [for k, v in local.custom_values : {
+      name  = k
+      value = v
+    }],
+    [for i, v in var.extra_source_repos : {
+      name  = "extraSourceRepos[${i}]"
+      value = v
+    }]
+  )
 
   set_sensitive = [for k, v in local.sensitive_values : {
     name  = k

@@ -7,6 +7,9 @@ spec:
   sourceRepos:
     - '{{ .Values.source.repoURL }}'
     - '{{ .Values.helm.repoURL }}'
+    {{- range .Values.extraSourceRepos }}
+    - '{{ . }}'
+    {{- end }}
   destinations:
     - namespace: '*'
       server: '*'

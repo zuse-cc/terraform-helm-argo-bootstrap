@@ -65,6 +65,12 @@ variable "sensitive_values" {
   sensitive   = true
 }
 
+variable "extra_source_repos" {
+  description = "Additional source repository URLs allowed in the ArgoCD AppProject, beyond the app and helm repos which are always included."
+  type        = list(string)
+  default     = []
+}
+
 variable "infisical" {
   description = "Infisical configuration for the secrets backend. When set, the Infisical ClusterSecretStore is used; omit to use the local Kubernetes secrets backend."
   type = object({
