@@ -13,8 +13,9 @@ variable "apps" {
   description = "Settings for the applications helm chart. Only chart_repo is required — name and version default to the charts bundled with this module."
   type = object({
     release_name  = optional(string, null)
+    chart         = optional(string, null)
     chart_name    = optional(string, "argo-appstack")
-    chart_version = optional(string, "0.1.0")
+    chart_version = optional(string, "0.3.0-rc")
     chart_repo    = optional(string, "oci://ghcr.io/zuse-cc/helm")
   })
 }
@@ -23,6 +24,7 @@ variable "secrets" {
   description = "Settings for the secrets helm chart. Defaults to the chart bundled with this module at the same version as apps."
   type = object({
     release_name  = optional(string, null)
+    chart         = optional(string, null)
     chart_name    = optional(string, "argo-appstack-secrets")
     chart_version = optional(string, null)
     chart_repo    = optional(string, null)
@@ -63,6 +65,12 @@ variable "sensitive_values" {
   type        = map(string)
   default     = {}
   sensitive   = true
+}
+
+variable "extra_source_repos" {
+  description = "Additional source repository URLs allowed in the ArgoCD AppProject, beyond the app and helm repos which are always included."
+  type        = list(string)
+  default     = []
 }
 
 variable "infisical" {

@@ -47,7 +47,6 @@ locals {
       "stack.name"                           = var.stack_name
       "source.targetRevision"                = var.source_repo.target_revision
       "source.repoURL"                       = var.source_repo.repo_url
-      "helm.repoURL"                         = trimprefix(var.apps.chart_repo, "oci://")
       "secrets.backend.kubernetes.namespace" = local.secrets_namespace
     },
     var.infisical != null ? {
@@ -66,18 +65,29 @@ locals {
 
 # Do NOT pass anything sensitive into this chart — values are passed
 # directly into ArgoCD via helm and may be exposed in the GUI.
+# If apps.chart is set, it overrides version, repository, etc. - this 
+# allows passing in a local chart path for development
 resource "helm_release" "apps" {
   name       = coalesce(var.apps.release_name, "${var.stack_name}-apps")
-  chart      = var.apps.chart_name
-  version    = var.apps.chart_version
-  repository = var.apps.chart_repo
+  chart      = var.apps.chart != null ? var.apps.chart : var.apps.chart_name
+  version    = var.apps.chart != null ? null : var.apps.chart_version
+  repository = var.apps.chart != null ? null : var.apps.chart_repo
   namespace  = var.namespace
   values     = [yamlencode(var.values)]
 
-  set = [for k, v in local.custom_values : {
-    name  = k
-    value = v
-  }]
+  # Parameters passed to helm via --set take the highest precedence
+  # Therefore we use them for values that should not be overridden by the user
+  # See https://helm.sh/docs/chart_template_guide/values_files/
+  set = concat(
+    [for k, v in local.custom_values : {
+      name  = k
+      value = v
+    }],
+    [for i, v in var.extra_source_repos : {
+      name  = "extraSourceRepos[${i}]"
+      value = v
+    }]
+  )
 
   set_sensitive = [for k, v in local.sensitive_values : {
     name  = k
@@ -90,9 +100,9 @@ resource "helm_release" "apps" {
 # For the Kubernetes backend: seeds app secrets into the local-secrets namespace.
 resource "helm_release" "secrets" {
   name       = coalesce(var.secrets.release_name, "${var.stack_name}-secrets")
-  chart      = var.secrets.chart_name
-  version    = coalesce(var.secrets.chart_version, var.apps.chart_version)
-  repository = coalesce(var.secrets.chart_repo, var.apps.chart_repo)
+  chart      = var.secrets.chart != null ? var.secrets.chart : coalesce(var.secrets.chart_name, var.apps.chart_name)
+  version    = var.secrets.chart != null ? null : coalesce(var.secrets.chart_version, var.apps.chart_version)
+  repository = var.secrets.chart != null ? null : coalesce(var.secrets.chart_repo, var.apps.chart_repo)
   namespace  = local.secrets_namespace
 
   set = var.infisical != null ? [
